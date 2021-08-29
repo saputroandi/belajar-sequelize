@@ -1,7 +1,9 @@
 const router = require('express').Router();
 const multer = require('multer');
+const Sequelize = require('sequelize');
 
 const Users = require('./model');
+const { errorHandler } = require('../utils/handler');
 
 router.get('/', async (req, res, next) => {
   try {
@@ -20,8 +22,16 @@ router.post('/user', multer().none(), async (req, res, next) => {
 
     const user = await Users.create(payload);
     return res.json(user);
-  } catch (error) {
-    console.log(error);
+  } catch (e) {
+    if (e instanceof Sequelize.ValidationError) {
+      const errorMessages = errorHandler(e);
+
+      return res.status(400).json({
+        error: 1,
+        messages: errorMessages,
+      });
+    }
+    next(e);
   }
 });
 
