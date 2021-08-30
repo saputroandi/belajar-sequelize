@@ -9,9 +9,14 @@ const errorHandler = (e) => {
       case 'is_null':
         message = 'Please complete this field';
         break;
+
       case 'not_unique':
         message = error.value + ' is taken. Please choose another one';
-        error.path = error.path.replace('_UNIQUE', '');
+        // error.path = error.path.replace('_UNIQUE', '');
+        break;
+
+      default:
+        message = `pelase tell the developer to add error message for this ${error.validatorKey} validator key`;
     }
 
     messages[error.path] = message;

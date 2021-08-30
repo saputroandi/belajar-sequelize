@@ -21,7 +21,57 @@ router.post('/user', multer().none(), async (req, res, next) => {
     const payload = req.body;
 
     const user = await Users.create(payload);
-    return res.json(user);
+    return res.json({
+      data: user,
+    });
+  } catch (e) {
+    if (e instanceof Sequelize.ValidationError) {
+      const errorMessages = errorHandler(e);
+
+      return res.status(400).json({
+        error: 1,
+        messages: errorMessages,
+      });
+    }
+    next(e);
+  }
+});
+
+router.put('/user/:id', multer().none(), async (req, res, next) => {
+  const id = req.params.id;
+
+  try {
+    const payload = req.body;
+
+    const user = await Users.update(payload, { where: { id: Number(id) } });
+
+    const userUpdated = await Users.findAll({ where: { id: Number(id) } });
+
+    return res.json({
+      data: userUpdated,
+    });
+  } catch (e) {
+    if (e instanceof Sequelize.ValidationError) {
+      const errorMessages = errorHandler(e);
+
+      return res.status(400).json({
+        error: 1,
+        messages: errorMessages,
+      });
+    }
+    next(e);
+  }
+});
+
+router.delete('/user/:id', async (req, res, next) => {
+  const id = req.params.id;
+
+  try {
+    const user = await Users.destroy({ where: { id: Number(id) } });
+
+    return res.json({
+      data: user,
+    });
   } catch (e) {
     if (e instanceof Sequelize.ValidationError) {
       const errorMessages = errorHandler(e);
